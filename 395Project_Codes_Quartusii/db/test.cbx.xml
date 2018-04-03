@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<LOG_ROOT>
+	<PROJECT NAME="test">
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|Image_Input:Inoutmodule|VRAM:VideoMemory|altsyncram:altsyncram_component" CBX_FILE_NAME="altsyncram_2sj1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|Image_Input:Inoutmodule|VRAM:VideoMemory2|altsyncram:altsyncram_component" CBX_FILE_NAME="altsyncram_2sj1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|cam_soc:NiosII|cam_soc_jtag_uart_0:jtag_uart_0|cam_soc_jtag_uart_0_scfifo_w:the_cam_soc_jtag_uart_0_scfifo_w|scfifo:wfifo" CBX_FILE_NAME="scfifo_jr21.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|cam_soc:NiosII|cam_soc_nios2_qsys_0:nios2_qsys_0|cam_soc_nios2_qsys_0_cpu:cpu|cam_soc_nios2_qsys_0_cpu_register_bank_a_module:cam_soc_nios2_qsys_0_cpu_register_bank_a|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_6mc1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component" CBX_FILE_NAME="altsyncram_2sj1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|cam_soc:NiosII|cam_soc_jtag_uart_0:jtag_uart_0|cam_soc_jtag_uart_0_scfifo_r:the_cam_soc_jtag_uart_0_scfifo_r|scfifo:rfifo" CBX_FILE_NAME="scfifo_jr21.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|cam_soc:NiosII|cam_soc_nios2_qsys_0:nios2_qsys_0|cam_soc_nios2_qsys_0_cpu:cpu|cam_soc_nios2_qsys_0_cpu_nios2_oci:the_cam_soc_nios2_qsys_0_cpu_nios2_oci|cam_soc_nios2_qsys_0_cpu_nios2_ocimem:the_cam_soc_nios2_qsys_0_cpu_nios2_ocimem|cam_soc_nios2_qsys_0_cpu_ociram_sp_ram_module:cam_soc_nios2_qsys_0_cpu_ociram_sp_ram|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_4a31.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|cam_soc:NiosII|cam_soc_nios2_qsys_0:nios2_qsys_0|cam_soc_nios2_qsys_0_cpu:cpu|cam_soc_nios2_qsys_0_cpu_register_bank_b_module:cam_soc_nios2_qsys_0_cpu_register_bank_b|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_6mc1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|test|cam_soc:NiosII|cam_soc_onchip_memory2_0:onchip_memory2_0|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_l1d1.tdf"/>
+	</PROJECT>
+</LOG_ROOT>

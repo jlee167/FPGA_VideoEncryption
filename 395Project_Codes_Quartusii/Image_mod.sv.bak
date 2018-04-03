@@ -1,0 +1,1312 @@
+/*
+Author: Jihoon Lee, Zachary Splingaire
+Date: 5/8/2016
+Module: Image_Input
+Function :	Processes the input signals from OV7670 Camera to produce 640 * 480
+				pixels of VGA image array
+				
+				Because encryption is done in hardware, Encryption/Decryption makes
+				access to SRAM, which makes it share the same logic block with VGA
+				output function
+				
+				Input: Camera Data, Camera sync, Push button inputs				
+				Output: VGA signal
+*/
+
+module Image_Input (input			Clk,	
+											Reset,
+											Cam_vsync,
+											Cam_href,
+											Cam_pclk,
+											Run,
+											SCCB_Run,
+											
+						input [7:0]		Cam_data,
+						input [79:0]	KEY_INPUT,		// 80 bit input from keyboard
+						input [11:0]	SEED,				// seed for key encryption
+						
+						// Sliding switch input
+						input SW1, SW2, SW14, SW15,SW16, SW17,
+					
+					//VGA OUTPUT	
+					output logic [7:0] Red, Green,Blue,
+					output logic			VGA_Clk,
+												sync,
+												blank,
+												vs,
+												hs,
+					// TEST out put LED LIGHT and HEX LED							
+					output logic LED1, LED2, LED3, LED4,
+				   output logic [3:0] HEX1, HEX2, HEX3, HEX4, 	
+						
+					// SRAM INTERFACE	
+					output [19:0] SRAM_ADDR,
+					inout [15:0] SRAM_DQ,
+					output SRAM_OE_N, SRAM_WE_N, SRAM_CE_N, SRAM_LB_N, SRAM_UB_N
+											);
+		
+		// Virtual Image of SRAM
+		// Used to drive SRAM from 2 different clocks, which is not possible
+		// on normal method
+		logic [19:0] LOCAL_SRAM_ADDR;
+		logic [15:0] LOCAL_SRAM_DQ;
+		logic LOCAL_SRAM_OE_N, LOCAL_SRAM_WE_N, LOCAL_SRAM_CE_N, LOCAL_SRAM_LB_N, LOCAL_SRAM_UB_N;									
+											
+											
+		// Image size parameter   640*480 VGA image			
+		parameter horizontal_size = 10'd639;
+		parameter vertical_size = 10'd479;
+		
+		
+		logic [1:0] mix_sequence;
+		assign mix_sequence[0] = KEY[48];
+		assign mix_sequence[1] = KEY[24];
+		
+		logic [4:0] MIX_HOR, MIX_VER, MIX_DIAG;
+		assign MIX_HOR = SEED [4:0];
+		assign MIX_VER = SEED [9:5];
+		
+		logic [15:0] temp_storage[8];
+		logic [15:0] temp_storage2,temp_storage3;
+		logic [20:0] counter;
+		logic [19:0] counter2,counter3;
+		logic [19:0] row_counter, column_counter, block_counter, row_counter2, column_counter2;
+		logic [5:0] rev, Key_counter;
+		
+		
+		// States for various phases of 
+		// Input reception, Image formation, Encryption/Decryption,
+		// and VGA display
+		enum logic [4:0]{SLEEP, PREP, PREP2, 	// Inactive states and initial value setting
+								RUN, 						// Input signal reception state	
+								DISPLAY, 				// VGA display state
+								
+								// Encryption States
+								ENCRYPT_INTERVAL, ENCRYPT_HOR, ENCRYPT_VER,HIATUS,
+								ENCRYPT_VER_INTERVAL, ENCRYPT_MIX_INTERVAL,
+								ENCRYPT_MIX, ENCRYPT_XOR,
+								
+								// Dncryption States
+								DECRYPT_VER_INTERVAL,
+								DECRYPT_HOR,DECRYPT_VER,DECRYPT_INTERVAL,	
+								DECRYPT_HOR_INTERVAL,
+								DECRYPT_MIX,DECRYPT_XOR,
+								
+								// NIOS II interface States
+								KEY_GEN,KEY_INTERVAL
+								} state, next_state;
+								
+								
+								
+		logic byte_num;
+		logic [19:0] horizontal_counter, vertical_counter;
+		logic [9:0] hc, vc;
+		logic [7:0] temp;
+		
+		
+		
+		logic [79:0] Subkey [1:7];		// Temporal storage for Chaotic Algorithm processed
+												// subkey
+												
+		logic [79:0] KEY;					// The current Key used for Encryption or Decryption
+
+		
+		logic Subkey_Reset;
+		logic Subkey_Run;
+		logic Subkey_Done;
+		logic [79:0] Subkey_Input;
+		logic [79:0] Subkey_Output;
+		
+		subkeyGenerator module1(.Clk(Clk), .Reset(Subkey_Reset), .Run(Subkey_Run), .seed(SEED),
+										.initial_subkey(Subkey_Input), .done(Subkey_Done), .subkey(Subkey_Output),
+										.HEX1(), .HEX2(), .HEX3(), .HEX4());
+																
+		assign HEX1 = KEY[3:0];
+		assign HEX2 = KEY[7:4];
+		assign HEX3 = KEY[11:8];
+		assign HEX4 = KEY[15:12];
+		
+		
+		// Sequential Key Input from Chaotic Key Encryption module are
+		// Stored in SUBKEY[8]
+		// First 4 keys are used in current revision for the test purpose
+		always_comb
+		begin
+			if ((SW14) &&(~SW15) &&(~SW16) &&(~SW17) )
+				KEY = Subkey[1];
+			else if ((~SW14) &&(SW15) &&(~SW16) &&(~SW17) )
+				KEY = Subkey[2];
+			else if ((~SW14) &&(~SW15) &&(SW16) &&(~SW17) )
+				KEY = Subkey[3];
+			else if ((~SW14) &&(~SW15) &&(~SW16) &&(SW17) )
+				KEY = Subkey[4];
+			else
+				KEY = 80'd0;
+		end
+		
+		
+// Testing state transition by outputting state to LED 
+		always_ff @ (posedge Cam_pclk)
+		begin
+						
+				if (state == SLEEP)
+				begin
+				LED1 <= 1;
+				LED2 <= 0;
+				LED3 <= 0;
+				LED4 <= 0; end
+
+				else if (state == PREP) begin
+				LED1 <= 0;
+				LED2 <= 1;
+				LED3 <= 0;
+				LED4 <= 0; end
+				else if (state == RUN) begin
+				LED1 <= 0;
+				LED2 <= 0;
+				LED3 <= 1;
+				LED4 <= 0; end
+				else if (state == DISPLAY) begin
+				LED1 <= 0;
+				LED2 <= 0;
+				LED3 <= 0;
+				LED4 <= 1; end
+		end
+
+// State transition Execution module.
+		always_ff @ (posedge Reset or posedge Cam_pclk)
+		begin
+				if(Reset)
+				begin
+				state <= SLEEP;
+				end
+				
+				else
+				begin
+				state <= next_state;	
+				end
+								
+		end
+
+// State Transition Decision Module		
+		always_comb
+		begin
+				unique case (state)
+				SLEEP:
+					if (Run)
+						next_state = PREP;
+					else
+						next_state = SLEEP;
+				
+				PREP: 
+					if (Cam_vsync == 1'b1)
+						next_state = PREP2;
+					else
+						next_state = PREP;
+				PREP2:
+					if (Cam_vsync == 1'b0)
+						next_state = RUN;
+					else
+						next_state = PREP2;				
+				RUN:
+					if (Cam_vsync == 1'b1)
+						next_state = DISPLAY;
+					else
+						next_state = RUN;
+				DISPLAY:
+					if (Run && SW1 && (~SW2))
+						next_state = ENCRYPT_HOR;
+					else if (Run && (~SW1) && SW2)
+						next_state = DECRYPT_XOR;
+					else if (Run && (~SW1) && (~SW2))
+						next_state = KEY_GEN;
+					else
+						next_state = DISPLAY;
+				ENCRYPT_HOR:
+					if (block_counter == 20'd60)
+						next_state = ENCRYPT_INTERVAL;
+					else
+						next_state = ENCRYPT_HOR;
+				ENCRYPT_INTERVAL:
+						next_state = ENCRYPT_VER;
+				ENCRYPT_VER:
+					if (block_counter == 20'd80)
+						next_state = ENCRYPT_VER_INTERVAL;
+					else
+						next_state = ENCRYPT_VER;
+				ENCRYPT_VER_INTERVAL:
+						next_state = ENCRYPT_MIX;
+				ENCRYPT_MIX:
+					if (block_counter == 20'd100)
+						next_state = ENCRYPT_MIX_INTERVAL;
+					else
+						next_state = ENCRYPT_MIX;
+				ENCRYPT_MIX_INTERVAL:
+						next_state = ENCRYPT_XOR;
+				ENCRYPT_XOR:
+					if (block_counter == 20'd100)
+						next_state = HIATUS;
+					else
+						next_state = ENCRYPT_XOR;
+				HIATUS:
+					if (Run && SW2 && SW1)
+						next_state = DISPLAY;
+					else
+						next_state = HIATUS;
+				DECRYPT_HOR:
+					if (block_counter == 20'd60)
+						next_state = HIATUS;
+					else
+						next_state = DECRYPT_HOR;
+				DECRYPT_INTERVAL:
+						next_state = DECRYPT_HOR;
+				DECRYPT_VER:
+					if (block_counter == 20'd80)
+						next_state = DECRYPT_INTERVAL;
+					else
+						next_state = DECRYPT_VER;
+				DECRYPT_MIX:		
+					if (block_counter == 20'd100)
+						next_state = DECRYPT_VER_INTERVAL;
+					else
+						next_state = DECRYPT_MIX;	
+				DECRYPT_VER_INTERVAL:
+						next_state = DECRYPT_VER;
+				DECRYPT_HOR_INTERVAL:
+						next_state = DECRYPT_MIX;
+				DECRYPT_XOR:		
+					if (block_counter == 20'd100)
+						next_state = DECRYPT_HOR_INTERVAL;
+					else
+						next_state = DECRYPT_XOR;					
+				KEY_GEN:
+					if (rev == 6'd5)
+						next_state = HIATUS;
+					else
+						next_state = KEY_GEN;
+				KEY_INTERVAL:
+					next_state = DISPLAY;
+				endcase
+		end
+
+		
+/* This Block produces a virtual image of SRAM input from OV7670 input.
+ The actual manipulation of SRAM signals is done in next module driven by
+ divided system clock. This block is driven by the pixel clock from OV7670 Camera*/
+ 		
+		always_ff @ (posedge Cam_pclk)
+		begin
+
+				if (state == SLEEP)
+				begin
+					// Nothing for Inactive State
+				end
+				
+				else if (state == PREP)
+				begin	
+					counter <= 21'b0;
+					byte_num <= 1'b0;
+					horizontal_counter <= 19'd0;
+					vertical_counter <= 19'd0;
+					temp <= 8'b0;
+
+				end
+				
+				else if (state == RUN)
+				begin
+						if(Cam_href == 1'b1)
+						begin
+							if(byte_num == 1'b0)
+								begin
+								LOCAL_SRAM_ADDR <= 19'b0;
+								LOCAL_SRAM_DQ 	 <= 16'bZ;
+								LOCAL_SRAM_OE_N <= 1'b1;
+								LOCAL_SRAM_LB_N <= 1'b1; 
+								LOCAL_SRAM_UB_N <= 1'b1;
+								LOCAL_SRAM_CE_N <= 1'b0;
+								LOCAL_SRAM_WE_N <= 1'b1;
+								temp <= Cam_data[7:0]; 
+								end 
+							else 
+							begin	
+									LOCAL_SRAM_ADDR <= 19'd307199 - counter[19:0];
+									LOCAL_SRAM_DQ <= {temp, Cam_data};
+									LOCAL_SRAM_OE_N <= 1'b1;
+									LOCAL_SRAM_LB_N <= 1'b0; 
+									LOCAL_SRAM_UB_N <= 1'b0;
+									LOCAL_SRAM_CE_N <= 1'b0;
+									LOCAL_SRAM_WE_N <= 1'b0;
+									
+									counter++;
+
+							end
+							byte_num <= ~byte_num;
+						end 
+						
+						else begin 
+						LOCAL_SRAM_ADDR <= 19'b0;
+						LOCAL_SRAM_DQ 	 <= 16'bZ;
+						LOCAL_SRAM_OE_N <= 1'b1;
+						LOCAL_SRAM_LB_N <= 1'b1; 
+						LOCAL_SRAM_UB_N <= 1'b1;
+						LOCAL_SRAM_CE_N <= 1'b0;
+						LOCAL_SRAM_WE_N <= 1'b1; end
+					
+
+				end		
+		
+		end 
+		
+		
+		
+		
+		// VGA-relevant code
+
+		always_ff @ (posedge Clk or posedge Reset)
+		begin
+			if(Reset)
+				VGA_Clk = 1'b0;
+			else
+				VGA_Clk = ~VGA_Clk;
+		end
+
+	//assign VGA_Clk = Cam_pclk;
+	
+		always_ff @ (posedge VGA_Clk)
+		begin
+			if (state == RUN)
+			begin
+				SRAM_ADDR 	<= LOCAL_SRAM_ADDR;
+				SRAM_DQ   	<= LOCAL_SRAM_DQ	;
+				SRAM_CE_N	<= LOCAL_SRAM_CE_N;
+				SRAM_LB_N	<= LOCAL_SRAM_LB_N;
+				SRAM_OE_N	<= LOCAL_SRAM_OE_N;
+				SRAM_UB_N	<= LOCAL_SRAM_UB_N;
+				SRAM_WE_N	<= LOCAL_SRAM_WE_N;
+			end
+			
+		
+		/*
+					XOR Encryption Phase
+		*/
+	
+		else if ( (state == ENCRYPT_XOR) || (state == DECRYPT_XOR) )
+		begin
+		if (rev == 6'd0)
+		begin
+			block_counter <= 20'd0;
+			rev <= 6'd1;
+		end
+	
+		else if ( (rev == 6'd1) || (rev == 6'd2) )
+		begin
+				SRAM_ADDR <= (20'd640 * column_counter) + row_counter;
+				temp_storage2 <= SRAM_DQ;
+				SRAM_DQ <= 16'bZ;
+				SRAM_OE_N <= 1'b0;
+				SRAM_LB_N <= 1'b0; 
+				SRAM_UB_N <= 1'b0;
+				SRAM_CE_N <= 1'b0;
+				SRAM_WE_N <= 1'b1; 
+				rev++;
+		end
+		
+		else if (rev == 6'd3)
+		begin
+				SRAM_ADDR <= (20'd640 * column_counter) + row_counter;
+				if (row_counter [1:0] == 2'b00)
+					SRAM_DQ = (temp_storage2 ^ KEY[15:0]);
+				else if (row_counter [1:0] == 2'b01)
+					SRAM_DQ = (temp_storage2 ^ KEY[31:16]);
+				else if (row_counter [1:0] == 2'b10)
+					SRAM_DQ = (temp_storage2 ^ KEY[47:32]);
+				else if (row_counter [1:0] == 2'b11)
+					SRAM_DQ = (temp_storage2 ^ KEY[63:48]);
+			
+				SRAM_OE_N <= 1'b1;
+				SRAM_LB_N <= 1'b0; 
+				SRAM_UB_N <= 1'b0;
+				SRAM_CE_N <= 1'b0;
+				SRAM_WE_N <= 1'b0; 
+				rev++;
+		end
+		
+		else if (rev == 6'd4)
+		begin
+				if (row_counter == 20'd639)
+					begin
+						row_counter <= 20'd0;
+						column_counter++;
+					end
+				else
+					row_counter++;
+					
+				rev++;
+		end
+		
+		else if (rev == 6'd5)
+		begin
+				if (column_counter == 20'd480)
+					rev<= 6'd6;
+				else 	
+					rev <= 6'd1;
+		end
+		
+		else if (rev == 6'd6)
+		begin
+				column_counter <= 480'd0;
+				row_counter <= 640'd0;
+				rev++;
+		end
+		
+		else if ( (rev == 6'd7) ||  (rev == 6'd8))
+		begin
+				SRAM_ADDR <= (20'd640 * column_counter) + row_counter;
+				temp_storage2 <= SRAM_DQ;
+				SRAM_DQ <= 16'bZ;
+				SRAM_OE_N <= 1'b0;
+				SRAM_LB_N <= 1'b0; 
+				SRAM_UB_N <= 1'b0;
+				SRAM_CE_N <= 1'b0;
+				SRAM_WE_N <= 1'b1; 
+				rev++;
+		end
+		
+		else if (rev == 6'd9)
+		begin
+				SRAM_ADDR <= (20'd640 * column_counter) + row_counter;
+				if (column_counter [1:0] == 2'b00)
+					SRAM_DQ = (temp_storage2 ^ KEY[15:0]);
+				else if (column_counter [1:0] == 2'b01)
+					SRAM_DQ = (temp_storage2 ^ KEY[31:16]);
+				else if (column_counter [1:0] == 2'b10)
+					SRAM_DQ = (temp_storage2 ^ KEY[47:32]);
+				else if (column_counter [1:0] == 2'b11)
+					SRAM_DQ = (temp_storage2 ^ KEY[63:48]);
+			
+				SRAM_OE_N <= 1'b1;
+				SRAM_LB_N <= 1'b0; 
+				SRAM_UB_N <= 1'b0;
+				SRAM_CE_N <= 1'b0;
+				SRAM_WE_N <= 1'b0; 
+				rev++;
+		end
+		
+		else if (rev == 6'd10)
+		begin
+				if (column_counter == 20'd479)
+					begin
+						column_counter <= 20'd0;
+						row_counter++;
+					end
+				else
+					column_counter++;
+					
+				rev++;
+		end
+		
+		else if (rev == 6'd11)
+		begin
+				if (row_counter == 20'd640)
+					block_counter <= 20'd100;
+				else 	
+					rev <= 6'd7;
+		end
+		
+		
+end
+			
+			
+				/*
+							Quadrant Shift Phase
+				*/
+			
+			else if ( (state == ENCRYPT_MIX) || (state == DECRYPT_MIX))
+			begin
+				SRAM_LB_N <= 1'b0; 
+				SRAM_UB_N <= 1'b0;
+				SRAM_CE_N <= 1'b0;			
+				
+				
+					if (rev == 6'd0)
+					begin
+						block_counter <= 20'd0;
+						rev <= 6'd1;
+						
+						
+						if (mix_sequence == 2'b00) 
+								begin column_counter = 20'd0; row_counter = 20'd0;  
+										column_counter2 = 20'd0; row_counter2 = 20'd320; end
+						else if (mix_sequence == 2'b01)	
+								begin column_counter = 20'd0; row_counter = 20'd0;  
+									 column_counter2 = 20'd240; row_counter2 = 20'd0; end					 
+						else if (mix_sequence == 2'b10) 
+								begin column_counter = 20'd240; row_counter = 20'd0;   
+										column_counter2 = 20'd240; row_counter2 = 20'd320;   end
+						else if (mix_sequence == 2'b11) 
+								begin column_counter = 20'd0; row_counter = 20'd320;
+										column_counter2 = 20'd240; row_counter2 = 20'd320;   end
+						
+						
+					end
+	
+					else if (rev == 6'd1)
+					begin	
+						SRAM_ADDR <= (640*column_counter) + row_counter;
+						temp_storage2 <= SRAM_DQ;
+						SRAM_DQ 	<= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						rev <= 6'd2;
+					end
+					
+					else if (rev == 6'd2)
+					begin	
+						SRAM_ADDR <= (640*column_counter) + row_counter;
+						temp_storage2 <= SRAM_DQ;
+						SRAM_DQ 	<= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						rev <= 6'd10;
+					end
+					
+					else if (rev == 6'd10)
+					begin
+						rev <= 6'd3;
+					end
+					
+						
+					else if (rev == 6'd3)
+					begin
+						SRAM_ADDR <= (640*column_counter2) + row_counter2;
+						temp_storage3 <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						rev <= 6'd4;
+					end
+				
+					else if (rev == 6'd4)
+					begin
+						SRAM_ADDR <= (640*column_counter2) + row_counter2;
+						temp_storage3 <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						rev <= 6'd5;
+					end
+				
+				
+				else if (rev == 6'd5)
+				begin
+					SRAM_ADDR <= (640*column_counter) + row_counter;
+					SRAM_DQ <= temp_storage3;
+					SRAM_OE_N <= 1'b1;
+					SRAM_WE_N <= 1'b0;
+					rev <= 6'd6;
+				end
+				
+				else if (rev == 6'd6)
+				begin
+					SRAM_ADDR <= (640*column_counter2) + row_counter2;
+					SRAM_DQ <= temp_storage2;
+					SRAM_OE_N <= 1'b1;
+					SRAM_WE_N <= 1'b0;
+					rev <= 6'd7;
+				end
+				
+				else if (rev == 6'd7)
+				begin
+					if ( (row_counter == 20'd319) || (row_counter == 20'd639) )
+						begin
+							row_counter <= row_counter - 20'd319;
+							row_counter2 <= row_counter2 - 20'd319;
+							column_counter++;
+							column_counter2++;
+							rev <= 6'd8;
+						end
+					
+					else
+						begin
+							row_counter++;
+							row_counter2++;
+							rev <= 6'd1;
+						end
+				end
+				
+				else if (rev == 6'd8)
+				begin
+					if ( (column_counter == 20'd240) ||  (column_counter == 20'd480) )
+					begin
+							block_counter <= 20'd100;
+					end
+					
+					else
+						rev = 6'd1;
+					
+				end
+				
+	end
+			
+			
+				/*
+					Subkey Generation Phase
+					Subkeys are stored in Subkey[8] array
+				*/
+			
+			else if (state == KEY_GEN)
+			begin
+				if (rev == 6'd0)
+				begin
+					Subkey_Run <= 0;
+					Subkey_Reset <= 1;
+					Key_counter <= 6'd0;
+					rev++;
+				end	
+				
+				else if (rev == 6'd1)
+				begin
+					if (Key_counter == 0)
+						Subkey_Input <= KEY_INPUT;
+					else
+						Subkey_Input <= Subkey[Key_counter];
+					Subkey_Run <= 0;
+					Subkey_Reset <= 1;
+					rev++;
+				end
+				
+				else if (rev == 6'd2)
+				begin
+					Key_counter++;
+					Subkey_Run <= 1;
+					Subkey_Reset <= 0;					
+					rev++;
+				end
+				
+				else if ((rev == 6'd3) && (Subkey_Done == 1) )
+				begin
+					Subkey[Key_counter] <= Subkey_Output;
+					rev++;
+				end
+				
+				else if (rev == 6'd4)
+				begin
+					if (Key_counter == 6'd7)
+						rev = 6'd5;
+					else
+						rev = 6'd1;
+				end
+			end
+			
+			else if (state == ENCRYPT_HOR)
+			begin
+				
+				if ( (block_counter < 20'd60) && (KEY[block_counter] != 1'b0) )
+				begin
+				
+					if (rev == 6'd0)
+					begin	
+						SRAM_ADDR <= (20'd640*column_counter) + row_counter;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						
+						rev <= 6'd1;
+					end
+					
+				else if (rev == 6'd1)
+				begin
+					SRAM_ADDR <= (20'd640*column_counter) + row_counter;
+					temp_storage[row_counter] <= SRAM_DQ;
+					SRAM_DQ <= 16'bZ;
+					SRAM_OE_N <= 1'b0;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b1;
+					
+					if (row_counter == 20'd7)
+					begin
+						rev <= 6'd2;
+						row_counter <= 20'd0;
+					end
+					
+					else
+					begin
+						row_counter++;
+						rev <= 6'd0;
+					end
+				end
+				
+				else if (rev == 6'd2)
+				begin
+					SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter + 8);
+					temp_storage2 <= SRAM_DQ;
+					SRAM_DQ <= 16'bZ;
+					SRAM_OE_N <= 1'b0;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b1; 
+					rev <= 6'd3;	
+				end
+				
+				else if (rev == 6'd3)
+				begin
+					SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter + 8);
+					temp_storage2 <= SRAM_DQ;
+					SRAM_DQ <= 16'bZ;
+					SRAM_OE_N <= 1'b0;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b1; 
+					rev <= 6'd4;	
+				end
+					
+				else if (rev == 6'd4)
+				begin
+					if (row_counter < 20'd632)
+					begin
+						SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter);
+						SRAM_DQ <= temp_storage2;
+					end
+					
+					else
+					begin
+						SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter);
+						SRAM_DQ <= temp_storage[row_counter-632];					
+					end
+					SRAM_OE_N <= 1'b1;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b0;
+					rev <= 6'd5;	
+				end
+				
+				else if (rev == 6'd5)
+				begin
+					if (row_counter == 20'd639)
+					begin 
+						row_counter <= 20'd0;
+						column_counter++;
+						rev <= 6'd0;
+						if (column_counter == (8*block_counter) + 7)
+								block_counter++;
+					end
+					
+					else 
+						begin row_counter++; 	
+								rev <= 6'd2; end
+				end
+		
+			end
+			
+			else if ( (block_counter < 20'd60) && (KEY[block_counter] == 1'b0) )
+			begin
+					block_counter++;
+					column_counter <= column_counter + 20'd8;
+					rev <= 6'd0;
+			end
+			
+			
+		end
+		
+		
+				/*
+							Intervals in state machine.
+							Counters are reset to be used in the next state
+				*/
+		
+			else if ( (state == ENCRYPT_INTERVAL) || (state == DECRYPT_INTERVAL) 
+						|| (state == ENCRYPT_VER_INTERVAL) || (state == DECRYPT_VER_INTERVAL)
+						|| (state == ENCRYPT_MIX_INTERVAL) || (state == DECRYPT_HOR_INTERVAL) )
+			begin
+					block_counter 	<= 20'b0;
+					row_counter 	<= 20'b0;
+					column_counter <= 20'b0;
+					rev <= 6'd0;
+			end
+
+				/*
+							Vertical Shifting Phase
+				*/
+	
+			else if (state == ENCRYPT_VER)
+			begin
+				if ( (block_counter < 20'd80) && (KEY[block_counter] != 1'b0) )
+				begin
+					if (rev == 6'd0)
+					begin	
+						SRAM_ADDR <= (20'd640*column_counter) + row_counter;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						
+						rev <= 6'd1;
+					end
+					
+					else if (rev == 6'd1)
+					begin
+						SRAM_ADDR <= (20'd640*column_counter) + row_counter;
+						temp_storage[column_counter] <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+					
+						if (column_counter == 20'd7)
+						begin
+							rev <= 6'd2;
+							column_counter <= 20'd0;
+						end
+						
+						else
+						begin
+							column_counter++;
+							rev <= 6'd0;
+						end
+					end
+					
+					else if (rev == 6'd2)
+					begin
+						SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter + (8*640) );
+						temp_storage2 <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1; 
+						rev <= 6'd3;	
+					end
+				
+					else if (rev == 6'd3)
+					begin
+						SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter + (8*640));
+						temp_storage2 <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1; 
+						rev <= 6'd4;	
+					end
+					
+				else if (rev == 6'd4)
+				begin
+					if (column_counter < 20'd472)
+					begin
+						SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter);
+						SRAM_DQ <= temp_storage2;
+					end
+					
+					else
+					begin
+						SRAM_ADDR <= ( (20'd640 * column_counter) + row_counter);
+						SRAM_DQ <= temp_storage[column_counter-472];					
+					end
+					SRAM_OE_N <= 1'b1;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b0;
+					rev <= 6'd5;	
+				end
+				
+				else if (rev == 6'd5)
+				begin
+					if (column_counter == 20'd479)
+					begin 
+						column_counter <= 20'd0;
+						row_counter++;
+						rev <= 6'd0;
+						if (row_counter == (8*block_counter) + 7)
+								block_counter++;
+					end
+					
+					else 
+						begin column_counter++; 	
+								rev <= 6'd2; end
+				end
+					
+					
+					
+			end
+				
+				else if ( (block_counter < 20'd80) && (KEY[block_counter] == 1'b0) )
+				begin
+					block_counter++;
+					row_counter <= row_counter + 20'd8;
+				end
+		end
+		
+				/*
+						Vertical Shifting Phase for decryption
+						It is the reverse process of shifting for encryption
+				*/
+				
+		else if (state == DECRYPT_VER)
+			begin
+				if ( (block_counter < 20'd80) && (KEY[block_counter] != 1'b0) )
+				begin
+					if (rev == 6'd0)
+					begin	
+						SRAM_ADDR <= (20'd640* (20'd479-column_counter) ) + row_counter;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						
+						rev <= 6'd1;
+					end
+					
+					else if (rev == 6'd1)
+					begin
+						SRAM_ADDR <= (20'd640* (20'd479-column_counter) ) + row_counter;
+						temp_storage[column_counter] <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+					
+						if (column_counter == 20'd7)
+						begin
+							rev <= 6'd2;
+							column_counter <= 20'd0;
+						end
+						
+						else
+						begin
+							column_counter++;
+							rev <= 6'd0;
+						end
+					end
+					
+					else if (rev == 6'd2)
+					begin
+						SRAM_ADDR <= (20'd640* (20'd479-column_counter - 20'd8) ) + row_counter;
+						temp_storage2 <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1; 
+						rev <= 6'd3;	
+					end
+				
+					else if (rev == 6'd3)
+					begin
+						SRAM_ADDR <= (20'd640* (20'd479-column_counter - 20'd8) ) + row_counter;
+						temp_storage2 <= SRAM_DQ;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1; 
+						rev <= 6'd4;	
+					end
+					
+				else if (rev == 6'd4)
+				begin
+					if (column_counter < 20'd472)
+					begin
+						SRAM_ADDR <= (20'd640* (20'd479-column_counter) ) + row_counter;
+						SRAM_DQ <= temp_storage2;
+					end
+					
+					else
+					begin
+						SRAM_ADDR <= (20'd640* (20'd479-column_counter) ) + row_counter;
+						SRAM_DQ <= temp_storage[column_counter-472];					
+					end
+					SRAM_OE_N <= 1'b1;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b0;
+					rev <= 6'd5;	
+				end
+				
+				else if (rev == 6'd5)
+				begin
+					if (column_counter == 20'd479)
+					begin 
+						column_counter <= 20'd0;
+						row_counter++;
+						rev <= 6'd0;
+						if (row_counter == (8*block_counter) + 7)
+								block_counter++;
+					end
+					
+					else 
+						begin column_counter++; 	
+								rev <= 6'd2; end
+				end
+					
+					
+					
+			end
+				
+				else if ( (block_counter < 20'd80) && (KEY[block_counter] == 1'b0) )
+				begin
+					block_counter++;
+					row_counter <= row_counter + 20'd8;
+				end
+		end
+		
+		
+		
+				/*
+							Horizontal Shifting Phase for Decryption
+							It is the inverse process of the one for encryption
+				*/
+		
+		else if (state == DECRYPT_HOR)
+			begin
+				
+				if ( (block_counter < 20'd60) && (KEY[block_counter] != 1'b0) )
+				begin
+				
+					if (rev == 6'd0)
+					begin	
+						SRAM_ADDR <= (20'd640*(column_counter+1) - 1) - row_counter;
+						SRAM_DQ <= 16'bZ;
+						SRAM_OE_N <= 1'b0;
+						SRAM_LB_N <= 1'b0; 
+						SRAM_UB_N <= 1'b0;
+						SRAM_CE_N <= 1'b0;
+						SRAM_WE_N <= 1'b1;
+						
+						rev <= 6'd1;
+					end
+					
+				else if (rev == 6'd1)
+				begin
+					SRAM_ADDR <= (640*(column_counter+1) -1) - row_counter;
+					temp_storage[row_counter] <= SRAM_DQ;
+					SRAM_DQ <= 16'bZ;
+					SRAM_OE_N <= 1'b0;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b1;
+					
+					if (row_counter == 20'd7)
+					begin
+						rev <= 6'd2;
+						row_counter <= 20'd0;
+					end
+					
+					else
+					begin
+						row_counter++;
+						rev <= 6'd0;
+					end
+				end
+				
+				else if (rev == 6'd2)
+				begin
+					SRAM_ADDR <= ( (640 * (column_counter+1)-1) - row_counter - 8);
+					temp_storage2 <= SRAM_DQ;
+					SRAM_DQ <= 16'bZ;
+					SRAM_OE_N <= 1'b0;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b1; 
+					rev <= 6'd3;	
+				end
+				
+				else if (rev == 6'd3)
+				begin
+					SRAM_ADDR <= ( (640 * (column_counter+1)-1) - row_counter - 8);
+					temp_storage2 <= SRAM_DQ;
+					SRAM_DQ <= 16'bZ;
+					SRAM_OE_N <= 1'b0;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b1; 
+					rev <= 6'd4;	
+				end
+					
+				else if (rev == 6'd4)
+				begin
+					if (row_counter < 20'd632)
+					begin
+						SRAM_ADDR <= ( (640 * (column_counter+1)-1) - row_counter);
+						SRAM_DQ <= temp_storage2;
+					end
+					
+					else
+					begin
+						SRAM_ADDR <= ( (640 * (column_counter+1)-1) - row_counter);
+						SRAM_DQ <= temp_storage[row_counter-632];					
+					end
+					SRAM_OE_N <= 1'b1;
+					SRAM_LB_N <= 1'b0; 
+					SRAM_UB_N <= 1'b0;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b0;
+					rev <= 6'd5;	
+				end
+				
+				else if (rev == 6'd5)
+				begin
+					if (row_counter == 20'd639)
+					begin 
+						row_counter <= 20'd0;
+						column_counter++;
+						rev <= 6'd0;
+						if (column_counter == (8*block_counter) + 7)
+								block_counter++;
+					end
+					
+					else 
+						begin row_counter++; 	
+								rev <= 6'd2; end
+				end
+		
+			end
+			
+			else if ( (block_counter < 20'd60) && (KEY[block_counter] == 1'b0) )
+			begin
+					block_counter++;
+					column_counter <= column_counter + 8;
+					rev <= 6'd0;
+			end
+			
+			
+		end
+			
+				/*
+							The final phase of both encryption and decryption.
+							All counters are initialized.
+				*/	
+			
+			else if (state == HIATUS)
+			begin
+					SRAM_ADDR <= 19'b0;
+					SRAM_DQ 	 <= 16'bZ;
+					SRAM_OE_N <= 1'b1;
+					SRAM_LB_N <= 1'b1; 
+					SRAM_UB_N <= 1'b1;
+					SRAM_CE_N <= 1'b0;
+					SRAM_WE_N <= 1'b1;
+			
+					block_counter 	<= 20'b0;
+					row_counter 	<= 20'b0;
+					column_counter <= 20'b0;
+					Key_counter <= 0;
+					rev <= 6'd0;
+			end
+			
+				/*
+							Display state sthat sends RGB signal to the VGA channel
+							When receiving input, data was stored in 16 bits of
+							RGB 565 data, where the MSB is don't care bit.
+				*/	
+			
+			
+			else if (state == DISPLAY)
+			begin
+
+				SRAM_ADDR <= (640 * vc) + hc;
+				Red <= {SRAM_DQ[15:11], SRAM_DQ[15:13]};
+				Green[7:5] <= SRAM_DQ[10:8];
+				Green[4:2] <= SRAM_DQ[7:5];
+				Green[1:0] <= SRAM_DQ[10:9];
+				Blue <= {SRAM_DQ[4:0], SRAM_DQ[4:2]};
+				SRAM_DQ <= 15'bZ;
+				SRAM_OE_N <= 1'b0;
+				SRAM_LB_N <= 1'b0; 
+				SRAM_UB_N <= 1'b0;
+				SRAM_CE_N <= 1'b0;
+				SRAM_WE_N <= 1'b1; 
+			end
+		end
+	
+	
+	/*
+	Below is the VGA block that governs every VGA signal except for Data output,
+	Which is carried out by the Encryption & Display block above.
+	Data output is at the Display state of the above block.
+	VGA block only sends sync pulses, VGA system clock, and runs pixel counter (which
+	above block uses to send appropriate data for right pixel number
+	*/
+	
+	
+		always_ff @ (posedge VGA_Clk or posedge Reset)
+		begin
+			if(Reset)
+			begin
+				hc <= 10'b0;
+				vc <= 10'b0;
+			end 
+			
+			else if (state == DISPLAY) 
+			begin
+				if(hc == 10'd799)
+				begin
+					hc <= 10'b0;
+					if(vc == 10'd524)
+						vc <= 10'b0;
+					else
+						vc++;
+				end 
+				
+				else
+					hc++;
+			end 
+		end
+		
+		always_ff @ (posedge Reset or posedge VGA_Clk )
+		begin
+			if(Reset) 
+            hs <= 1'b0;
+        else if (state == DISPLAY)
+            if ((((hc + 1) >= 10'd656) & ((hc + 1) < 10'd752))) 
+                hs <= 1'b0;
+            else 
+				    hs <= 1'b1;
+		end
+	 
+		always_ff @ (posedge Reset or posedge VGA_Clk )
+		begin
+        if(Reset) 
+           vs <= 1'b0;
+        else if (state == DISPLAY) 
+            if (((vc + 1) == 9'd490) | ((vc + 1) == 9'd491) ) 
+			       vs <= 1'b0;
+            else 
+			       vs <= 1'b1;
+		end
+
+		always_comb
+		begin 
+			if ( (hc >= 10'b1010000000) | (vc >= 10'b0111100000) ) 
+					blank = 1'b0;
+			else 
+					blank = 1'b1;
+		end 		
+			
+		assign sync = 1'b0;
+		
+		endmodule 

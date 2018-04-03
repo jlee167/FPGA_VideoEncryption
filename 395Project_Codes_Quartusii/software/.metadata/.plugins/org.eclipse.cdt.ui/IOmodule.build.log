@@ -1,0 +1,9 @@
+14:57:35 **** Incremental Build of configuration Nios II for project IOmodule ****
+make all 
+Info: Building ../IOmodule_bsp/
+C:/altera/15.0/nios2eds/bin/gnu/H-x86_64-mingw32/bin/make --no-print-directory -C ../IOmodule_bsp/
+[BSP build complete]
+[IOmodule build complete]
+
+14:57:45 Build Finished (took 9s.749ms)
+

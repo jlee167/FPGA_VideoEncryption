@@ -1,0 +1,103 @@
+
+State Machine - |test|cam_soc:NiosII|cam_soc_sdram:sdram|m_next
+Name m_next.010000000 m_next.000010000 m_next.000001000 m_next.000000001 
+m_next.000000001 0 0 0 0 
+m_next.000001000 0 0 1 1 
+m_next.000010000 0 1 0 1 
+m_next.010000000 1 0 0 1 
+
+State Machine - |test|cam_soc:NiosII|cam_soc_sdram:sdram|m_state
+Name m_state.100000000 m_state.010000000 m_state.001000000 m_state.000100000 m_state.000010000 m_state.000001000 m_state.000000100 m_state.000000010 m_state.000000001 
+m_state.000000001 0 0 0 0 0 0 0 0 0 
+m_state.000000010 0 0 0 0 0 0 0 1 1 
+m_state.000000100 0 0 0 0 0 0 1 0 1 
+m_state.000001000 0 0 0 0 0 1 0 0 1 
+m_state.000010000 0 0 0 0 1 0 0 0 1 
+m_state.000100000 0 0 0 1 0 0 0 0 1 
+m_state.001000000 0 0 1 0 0 0 0 0 1 
+m_state.010000000 0 1 0 0 0 0 0 0 1 
+m_state.100000000 1 0 0 0 0 0 0 0 1 
+
+State Machine - |test|cam_soc:NiosII|cam_soc_sdram:sdram|i_next
+Name i_next.111 i_next.101 i_next.010 i_next.000 
+i_next.000 0 0 0 0 
+i_next.010 0 0 1 1 
+i_next.101 0 1 0 1 
+i_next.111 1 0 0 1 
+
+State Machine - |test|cam_soc:NiosII|cam_soc_sdram:sdram|i_state
+Name i_state.111 i_state.101 i_state.011 i_state.010 i_state.001 i_state.000 
+i_state.000 0 0 0 0 0 0 
+i_state.001 0 0 0 0 1 1 
+i_state.010 0 0 0 1 0 1 
+i_state.011 0 0 1 0 0 1 
+i_state.101 0 1 0 0 0 1 
+i_state.111 1 0 0 0 0 1 
+
+State Machine - |test|cam_soc:NiosII|cam_soc_nios2_qsys_0:nios2_qsys_0|cam_soc_nios2_qsys_0_cpu:cpu|cam_soc_nios2_qsys_0_cpu_nios2_oci:the_cam_soc_nios2_qsys_0_cpu_nios2_oci|cam_soc_nios2_qsys_0_cpu_debug_slave_wrapper:the_cam_soc_nios2_qsys_0_cpu_debug_slave_wrapper|cam_soc_nios2_qsys_0_cpu_debug_slave_tck:the_cam_soc_nios2_qsys_0_cpu_debug_slave_tck|DRsize
+Name DRsize.101 DRsize.100 DRsize.011 DRsize.010 DRsize.001 DRsize.000 
+DRsize.000 0 0 0 0 0 0 
+DRsize.001 0 0 0 0 1 1 
+DRsize.010 0 0 0 1 0 1 
+DRsize.011 0 0 1 0 0 1 
+DRsize.100 0 1 0 0 0 1 
+DRsize.101 1 0 0 0 0 1 
+
+State Machine - |test|SCCB_master:sccb|state
+Name state.FIN state.Phase4 state.Phase3 state.BREAK state.INPUT state.Phase2 state.Phase1 state.PREP state.STOP state.HALT 
+state.HALT 0 0 0 0 0 0 0 0 0 0 
+state.STOP 0 0 0 0 0 0 0 0 1 1 
+state.PREP 0 0 0 0 0 0 0 1 0 1 
+state.Phase1 0 0 0 0 0 0 1 0 0 1 
+state.Phase2 0 0 0 0 0 1 0 0 0 1 
+state.INPUT 0 0 0 0 1 0 0 0 0 1 
+state.BREAK 0 0 0 1 0 0 0 0 0 1 
+state.Phase3 0 0 1 0 0 0 0 0 0 1 
+state.Phase4 0 1 0 0 0 0 0 0 0 1 
+state.FIN 1 0 0 0 0 0 0 0 0 1 
+
+State Machine - |test|Image_Input:Inoutmodule|state
+Name state.RUN state.PREP2 state.PREP state.SLEEP 
+state.SLEEP 0 0 0 0 
+state.PREP 0 0 1 1 
+state.PREP2 0 1 0 1 
+state.RUN 1 0 0 1 
+
+State Machine - |test|Image_Input:Inoutmodule|subkeyGenerator:module1|state
+Name state.HOLD state.BERNOULLI state.QUADRATIC state.TENT state.LOGISTIC state.DECIDE_MAP state.WAIT 
+state.WAIT 0 0 0 0 0 0 0 
+state.DECIDE_MAP 0 0 0 0 0 1 1 
+state.LOGISTIC 0 0 0 0 1 0 1 
+state.TENT 0 0 0 1 0 0 1 
+state.QUADRATIC 0 0 1 0 0 0 1 
+state.BERNOULLI 0 1 0 0 0 0 1 
+state.HOLD 1 0 0 0 0 0 1 
+
+State Machine - |test|Image_Input:Inoutmodule|subkeyGenerator:module1|bernMap:bern|state
+Name state.LOAD state.HOLD state.COMPUTE 
+state.LOAD 0 0 0 
+state.COMPUTE 1 0 1 
+state.HOLD 1 1 0 
+
+State Machine - |test|Image_Input:Inoutmodule|subkeyGenerator:module1|quadMap:quad|state
+Name state.HOLD state.ADD state.COMPUTE state.LOAD 
+state.LOAD 0 0 0 0 
+state.COMPUTE 0 0 1 1 
+state.ADD 0 1 0 1 
+state.HOLD 1 0 0 1 
+
+State Machine - |test|Image_Input:Inoutmodule|subkeyGenerator:module1|tentMap:tent|state
+Name state.HOLD state.COMPUTE state.ADJUST state.LOAD 
+state.LOAD 0 0 0 0 
+state.ADJUST 0 0 1 1 
+state.COMPUTE 0 1 0 1 
+state.HOLD 1 0 0 1 
+
+State Machine - |test|Image_Input:Inoutmodule|subkeyGenerator:module1|logisticMap:log|state
+Name state.HOLD state.SHIFT state.COMPUTE2 state.PAUSE state.COMPUTE1 state.WAIT 
+state.WAIT 0 0 0 0 0 0 
+state.COMPUTE1 0 0 0 0 1 1 
+state.PAUSE 0 0 0 1 0 1 
+state.COMPUTE2 0 0 1 0 0 1 
+state.SHIFT 0 1 0 0 0 1 
+state.HOLD 1 0 0 0 0 1 
