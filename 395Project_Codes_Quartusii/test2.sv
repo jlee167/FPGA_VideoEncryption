@@ -138,7 +138,7 @@ output: Camera Clk, SCCB Clock, SCCB Data, VGA signals
 		SCCB_master sccb(.Clk(SCCB_clk), .Run(~Run),.Reset(~Reset), .read_rq(SCCB_read), .write2_rq(SCCB_w2), .write3_rq(SCCB_w3), .data_in(SCCB_writedata),
 							  .addr_in(SCCB_address), .sdioc(Cam_sdioc), .complete(SCCB_complete), .sdiod(Cam_sdiod), .data_from_slave(RESULT), .SCCB_Run(~SCCB_Run),
 							  .LEDR1(), .LEDR2(), .LEDR3(), .LEDR4());
-		
+		/*
 		// NIOS II interface	(SDRAM for memory)	
 						  cam_soc NiosII (.clk_clk(Clk), 
 											 .reset_reset_n(Reset),
@@ -166,8 +166,8 @@ output: Camera Clk, SCCB Clock, SCCB Data, VGA signals
 									.row_shift(row_shift), .column_shift(column_shift),
 									.diagonal_shift(diagonal_shift),.SEED(SEED),
 									.Command(Command)
-									);		
-		
+								);		
+		*/
 		//Clock Diving section for SCCB 
 		//SCCB takes no input clock bigger than 400 KHZ frequency
 		

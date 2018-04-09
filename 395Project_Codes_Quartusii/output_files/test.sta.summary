@@ -2,64 +2,148 @@
 TimeQuest Timing Analyzer Summary
 ------------------------------------------------------------
 
-Type  : Slow 1200mV 85C Model Setup 'altera_reserved_tck'
-Slack : 46.717
+Type  : Slow 1200mV 85C Model Setup 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : -6.688
+TNS   : -3250.555
+
+Type  : Slow 1200mV 85C Model Setup 'Cam_pclk'
+Slack : -4.429
+TNS   : -4272.938
+
+Type  : Slow 1200mV 85C Model Setup 'Clk'
+Slack : -3.524
+TNS   : -47.332
+
+Type  : Slow 1200mV 85C Model Setup 'SCCB_clk'
+Slack : -3.335
+TNS   : -149.653
+
+Type  : Slow 1200mV 85C Model Hold 'Cam_pclk'
+Slack : 0.386
 TNS   : 0.000
 
-Type  : Slow 1200mV 85C Model Hold 'altera_reserved_tck'
+Type  : Slow 1200mV 85C Model Hold 'SCCB_clk'
 Slack : 0.402
 TNS   : 0.000
 
-Type  : Slow 1200mV 85C Model Recovery 'altera_reserved_tck'
-Slack : 47.942
+Type  : Slow 1200mV 85C Model Hold 'Clk'
+Slack : 0.403
 TNS   : 0.000
 
-Type  : Slow 1200mV 85C Model Removal 'altera_reserved_tck'
-Slack : 1.055
+Type  : Slow 1200mV 85C Model Hold 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : 0.404
 TNS   : 0.000
 
-Type  : Slow 1200mV 85C Model Minimum Pulse Width 'altera_reserved_tck'
-Slack : 49.632
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'Cam_pclk'
+Slack : -3.000
+TNS   : -3253.724
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'Clk'
+Slack : -3.000
+TNS   : -26.130
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : -2.693
+TNS   : -2227.564
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'SCCB_clk'
+Slack : -1.285
+TNS   : -89.950
+
+Type  : Slow 1200mV 0C Model Setup 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : -5.928
+TNS   : -2856.324
+
+Type  : Slow 1200mV 0C Model Setup 'Cam_pclk'
+Slack : -4.011
+TNS   : -3807.514
+
+Type  : Slow 1200mV 0C Model Setup 'Clk'
+Slack : -3.143
+TNS   : -41.881
+
+Type  : Slow 1200mV 0C Model Setup 'SCCB_clk'
+Slack : -2.977
+TNS   : -130.350
+
+Type  : Slow 1200mV 0C Model Hold 'SCCB_clk'
+Slack : 0.353
 TNS   : 0.000
 
-Type  : Slow 1200mV 0C Model Setup 'altera_reserved_tck'
-Slack : 47.085
-TNS   : 0.000
-
-Type  : Slow 1200mV 0C Model Hold 'altera_reserved_tck'
+Type  : Slow 1200mV 0C Model Hold 'Image_Input:Inoutmodule|VGA_Clk'
 Slack : 0.354
 TNS   : 0.000
 
-Type  : Slow 1200mV 0C Model Recovery 'altera_reserved_tck'
-Slack : 48.230
+Type  : Slow 1200mV 0C Model Hold 'Clk'
+Slack : 0.355
 TNS   : 0.000
 
-Type  : Slow 1200mV 0C Model Removal 'altera_reserved_tck'
-Slack : 0.962
+Type  : Slow 1200mV 0C Model Hold 'Cam_pclk'
+Slack : 0.387
 TNS   : 0.000
 
-Type  : Slow 1200mV 0C Model Minimum Pulse Width 'altera_reserved_tck'
-Slack : 49.576
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'Cam_pclk'
+Slack : -3.000
+TNS   : -3188.288
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'Clk'
+Slack : -3.000
+TNS   : -26.130
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : -2.649
+TNS   : -2193.772
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'SCCB_clk'
+Slack : -1.285
+TNS   : -89.950
+
+Type  : Fast 1200mV 0C Model Setup 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : -2.956
+TNS   : -1097.238
+
+Type  : Fast 1200mV 0C Model Setup 'Cam_pclk'
+Slack : -1.794
+TNS   : -1564.854
+
+Type  : Fast 1200mV 0C Model Setup 'Clk'
+Slack : -1.233
+TNS   : -13.129
+
+Type  : Fast 1200mV 0C Model Setup 'SCCB_clk'
+Slack : -1.131
+TNS   : -38.261
+
+Type  : Fast 1200mV 0C Model Hold 'Clk'
+Slack : 0.116
 TNS   : 0.000
 
-Type  : Fast 1200mV 0C Model Setup 'altera_reserved_tck'
-Slack : 48.563
+Type  : Fast 1200mV 0C Model Hold 'Cam_pclk'
+Slack : 0.145
 TNS   : 0.000
 
-Type  : Fast 1200mV 0C Model Hold 'altera_reserved_tck'
+Type  : Fast 1200mV 0C Model Hold 'SCCB_clk'
 Slack : 0.179
 TNS   : 0.000
 
-Type  : Fast 1200mV 0C Model Recovery 'altera_reserved_tck'
-Slack : 49.171
+Type  : Fast 1200mV 0C Model Hold 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : 0.180
 TNS   : 0.000
 
-Type  : Fast 1200mV 0C Model Removal 'altera_reserved_tck'
-Slack : 0.501
-TNS   : 0.000
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'Cam_pclk'
+Slack : -3.000
+TNS   : -1697.437
 
-Type  : Fast 1200mV 0C Model Minimum Pulse Width 'altera_reserved_tck'
-Slack : 49.472
-TNS   : 0.000
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'Clk'
+Slack : -3.000
+TNS   : -22.097
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'Image_Input:Inoutmodule|VGA_Clk'
+Slack : -1.000
+TNS   : -892.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'SCCB_clk'
+Slack : -1.000
+TNS   : -70.000
 
 ------------------------------------------------------------
