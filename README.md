@@ -1,4 +1,4 @@
-Below video includes video driver & basic encryption demo.
+<b>Below video includes video driver & basic encryption demo.</b>
 
 Currently importing encryption algorithm from image encryption repo.
 
