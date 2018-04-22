@@ -1,5 +1,5 @@
 Analysis & Synthesis report for test
-Sun Apr 08 20:09:03 2018
+Tue Apr 10 01:13:13 2018
 Quartus II 64-Bit Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
 
 
@@ -35,16 +35,17 @@ Quartus II 64-Bit Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
  27. Parameter Settings for User Entity Instance: Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component
  28. Parameter Settings for User Entity Instance: SCCB_master:sccb
  29. altsyncram Parameter Settings by Entity Instance
- 30. Port Connectivity Checks: "SCCB_master:sccb"
- 31. Port Connectivity Checks: "Image_Input:Inoutmodule|encryptor:encryption_module1"
- 32. Port Connectivity Checks: "Image_Input:Inoutmodule|VRAM:VideoMemory"
- 33. Port Connectivity Checks: "Image_Input:Inoutmodule|subkeyGenerator:module1|tentMap:tent|multiplier80:mult"
- 34. Port Connectivity Checks: "Image_Input:Inoutmodule|subkeyGenerator:module1"
- 35. Port Connectivity Checks: "Image_Input:Inoutmodule"
- 36. Post-Synthesis Netlist Statistics for Top Partition
- 37. Elapsed Time Per Partition
- 38. Analysis & Synthesis Messages
- 39. Analysis & Synthesis Suppressed Messages
+ 30. Port Connectivity Checks: "Key_Receiver:IOmodule"
+ 31. Port Connectivity Checks: "SCCB_master:sccb"
+ 32. Port Connectivity Checks: "Image_Input:Inoutmodule|encryptor:encryption_module1"
+ 33. Port Connectivity Checks: "Image_Input:Inoutmodule|VRAM:VideoMemory"
+ 34. Port Connectivity Checks: "Image_Input:Inoutmodule|subkeyGenerator:module1|tentMap:tent|multiplier80:mult"
+ 35. Port Connectivity Checks: "Image_Input:Inoutmodule|subkeyGenerator:module1"
+ 36. Port Connectivity Checks: "Image_Input:Inoutmodule"
+ 37. Post-Synthesis Netlist Statistics for Top Partition
+ 38. Elapsed Time Per Partition
+ 39. Analysis & Synthesis Messages
+ 40. Analysis & Synthesis Suppressed Messages
 
 
 
@@ -71,7 +72,7 @@ agreement for further details.
 +---------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                    ;
 +------------------------------------+--------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Sun Apr 08 20:09:03 2018      ;
+; Analysis & Synthesis Status        ; Successful - Tue Apr 10 01:13:13 2018      ;
 ; Quartus II 64-Bit Version          ; 14.0.0 Build 200 06/17/2014 SJ Web Edition ;
 ; Revision Name                      ; test                                       ;
 ; Top-level Entity Name              ; test                                       ;
@@ -201,6 +202,7 @@ Parallel compilation was disabled, but you have multiple processors available. E
 ; SCCB_master.sv                   ; yes             ; User SystemVerilog HDL File  ; C:/Users/jihoon/Desktop/bckup - Copy/FPGA_VideoEncryption/395Project_Codes_Quartusii/SCCB_master.sv         ;         ;
 ; HexDriver.sv                     ; yes             ; User SystemVerilog HDL File  ; C:/Users/jihoon/Desktop/bckup - Copy/FPGA_VideoEncryption/395Project_Codes_Quartusii/HexDriver.sv           ;         ;
 ; Image_mod.sv                     ; yes             ; User SystemVerilog HDL File  ; C:/Users/jihoon/Desktop/bckup - Copy/FPGA_VideoEncryption/395Project_Codes_Quartusii/Image_mod.sv           ;         ;
+; Key_Receiver.sv                  ; yes             ; User SystemVerilog HDL File  ; C:/Users/jihoon/Desktop/bckup - Copy/FPGA_VideoEncryption/395Project_Codes_Quartusii/Key_Receiver.sv        ;         ;
 ; VRAM.v                           ; yes             ; User Wizard-Generated File   ; C:/Users/jihoon/Desktop/bckup - Copy/FPGA_VideoEncryption/395Project_Codes_Quartusii/VRAM.v                 ;         ;
 ; encryptor.sv                     ; yes             ; User SystemVerilog HDL File  ; C:/Users/jihoon/Desktop/bckup - Copy/FPGA_VideoEncryption/395Project_Codes_Quartusii/encryptor.sv           ;         ;
 ; altsyncram.tdf                   ; yes             ; Megafunction                 ; c:/altera/14.0/quartus/libraries/megafunctions/altsyncram.tdf                                               ;         ;
@@ -421,6 +423,9 @@ Encoding Type:  One-Hot
 ; SCCB_master:sccb|IP_address_Write[6]                                                                                          ; Stuck at VCC due to stuck port data_in                                                                                                    ;
 ; SCCB_master:sccb|IP_address_Write[7]                                                                                          ; Stuck at GND due to stuck port data_in                                                                                                    ;
 ; Image_Input:Inoutmodule|subkeyGenerator:module1|temp_seed[0..11]                                                              ; Stuck at GND due to stuck port data_in                                                                                                    ;
+; Key_Receiver:IOmodule|counter[0..4]                                                                                           ; Lost fanout                                                                                                                               ;
+; Key_Receiver:IOmodule|to_sw_sig[0..7]                                                                                         ; Lost fanout                                                                                                                               ;
+; Key_Receiver:IOmodule|column_shift[1..15]                                                                                     ; Merged with Key_Receiver:IOmodule|column_shift[0]                                                                                         ;
 ; Image_Input:Inoutmodule|VRAM:VideoMemory|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|address_reg_b[2]      ; Merged with Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|address_reg_b[2]     ;
 ; Image_Input:Inoutmodule|VRAM:VideoMemory2|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|address_reg_b[2]     ; Merged with Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|address_reg_b[2]     ;
 ; Image_Input:Inoutmodule|VRAM:VideoMemory|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|address_reg_b[1]      ; Merged with Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|address_reg_b[1]     ;
@@ -433,6 +438,7 @@ Encoding Type:  One-Hot
 ; Image_Input:Inoutmodule|VRAM:VideoMemory2|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|out_address_reg_b[1] ; Merged with Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|out_address_reg_b[1] ;
 ; Image_Input:Inoutmodule|VRAM:VideoMemory|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|out_address_reg_b[0]  ; Merged with Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|out_address_reg_b[0] ;
 ; Image_Input:Inoutmodule|VRAM:VideoMemory2|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|out_address_reg_b[0] ; Merged with Image_Input:Inoutmodule|VRAM:VideoMemory3|altsyncram:altsyncram_component|altsyncram_2sj1:auto_generated|out_address_reg_b[0] ;
+; Key_Receiver:IOmodule|column_shift[0]                                                                                         ; Stuck at GND due to stuck port data_in                                                                                                    ;
 ; SCCB_master:sccb|state~2                                                                                                      ; Lost fanout                                                                                                                               ;
 ; SCCB_master:sccb|state~3                                                                                                      ; Lost fanout                                                                                                                               ;
 ; SCCB_master:sccb|state~4                                                                                                      ; Lost fanout                                                                                                                               ;
@@ -487,7 +493,7 @@ Encoding Type:  One-Hot
 ; Image_Input:Inoutmodule|subkeyGenerator:module1|logisticMap:log|state.HOLD                                                    ; Lost fanout                                                                                                                               ;
 ; Image_Input:Inoutmodule|state.PREP2                                                                                           ; Lost fanout                                                                                                                               ;
 ; Image_Input:Inoutmodule|counter[16..20]                                                                                       ; Lost fanout                                                                                                                               ;
-; Total Number of Removed Registers = 130                                                                                       ;                                                                                                                                           ;
+; Total Number of Removed Registers = 159                                                                                       ;                                                                                                                                           ;
 +-------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+
 
 
@@ -933,6 +939,19 @@ Note: In order to hide this table in the UI and the text report file, please set
 +-------------------------------------------+---------------------------------------------------------------------------+
 
 
++--------------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "Key_Receiver:IOmodule"                                                                        ;
++----------------+--------+----------+-------------------------------------------------------------------------------------+
+; Port           ; Type   ; Severity ; Details                                                                             ;
++----------------+--------+----------+-------------------------------------------------------------------------------------+
+; to_sw_sig      ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; row_shift      ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; diagonal_shift ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; SEED[23..12]   ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; Command        ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++----------------+--------+----------+-------------------------------------------------------------------------------------+
+
+
 +---------------------------------------------------------------------------------------------------------------------------+
 ; Port Connectivity Checks: "SCCB_master:sccb"                                                                              ;
 +-----------------+--------+----------+-------------------------------------------------------------------------------------+
@@ -1050,7 +1069,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Analysis & Synthesis
     Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
-    Info: Processing started: Sun Apr 08 20:08:56 2018
+    Info: Processing started: Tue Apr 10 01:13:06 2018
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off test -c test
 Warning (20028): Parallel compilation is not licensed and has been disabled
 Info (12021): Found 1 design units, including 1 entities, in source file tentmap.sv
@@ -1282,118 +1301,12 @@ Warning (10036): Verilog HDL or VHDL warning at SCCB_master.sv(33): object "prep
 Warning (10034): Output port "complete" at SCCB_master.sv(21) has no driver
 Warning (10034): Output port "LEDR3" at SCCB_master.sv(24) has no driver
 Warning (10034): Output port "LEDR4" at SCCB_master.sv(25) has no driver
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[11]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[10]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[9]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[8]" is missing source, defaulting to GND
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[11]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[10]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[9]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[8]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[7]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[6]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[5]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[4]" is missing source, defaulting to GND
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[11]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[10]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[9]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[8]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[7]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[6]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[5]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[4]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[3]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[2]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[1]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[0]" is missing source, defaulting to GND
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[11]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[10]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[9]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[8]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[7]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[6]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[5]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[4]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[3]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[2]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[1]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[0]" is missing source, defaulting to GND
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[11]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[10]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[9]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[8]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[7]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[6]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[5]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[4]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[3]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[2]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[1]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[0]" is missing source, defaulting to GND
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[11]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[10]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[9]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[8]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[7]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[6]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[5]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[4]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[3]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[2]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[1]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[0]" is missing source, defaulting to GND
-Warning (12011): Net is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[15]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[14]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[13]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[12]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[11]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[10]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[9]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[8]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[7]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[6]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[5]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[4]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[3]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[2]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[1]" is missing source, defaulting to GND
-    Warning (12110): Net "column_shift[0]" is missing source, defaulting to GND
+Info (12128): Elaborating entity "Key_Receiver" for hierarchy "Key_Receiver:IOmodule"
+Warning (10230): Verilog HDL assignment warning at Key_Receiver.sv(27): truncated value with size 10 to match size of target (5)
+Warning (10230): Verilog HDL assignment warning at Key_Receiver.sv(58): truncated value with size 10 to match size of target (5)
+Warning (10230): Verilog HDL assignment warning at Key_Receiver.sv(91): truncated value with size 10 to match size of target (5)
+Warning (10230): Verilog HDL assignment warning at Key_Receiver.sv(109): truncated value with size 32 to match size of target (5)
+Warning (10034): Output port "SEED" at Key_Receiver.sv(17) has no driver
 Warning (12241): 3 hierarchies have connectivity warnings - see the Connectivity Checks report folder
 Warning (13039): The following bidir pins have no drivers
     Warning (13040): Bidir "SRAM_DQ[0]" has no driver
@@ -1531,7 +1444,7 @@ Warning (13024): Output pins are stuck at VCC or GND
     Warning (13410): Pin "sdram_wire_we_n" is stuck at GND
     Warning (13410): Pin "sdram_wire_clk" is stuck at GND
 Info (286030): Timing-Driven Synthesis is running
-Info (17049): 90 registers lost all their fanouts during netlist optimizations.
+Info (17049): 103 registers lost all their fanouts during netlist optimizations.
 Warning (20013): Ignored assignments for entity "altera_avalon_sc_fifo" -- entity does not exist in design
     Warning (20014): Assignment for entity set_global_assignment -name IP_TOOL_NAME altera_avalon_sc_fifo -entity altera_avalon_sc_fifo -qip cam_soc/synthesis/cam_soc.qip -library cam_soc was ignored
     Warning (20014): Assignment for entity set_global_assignment -name IP_TOOL_VERSION 15.0 -entity altera_avalon_sc_fifo -qip cam_soc/synthesis/cam_soc.qip -library cam_soc was ignored
@@ -1961,10 +1874,10 @@ Info (21057): Implemented 1579 device resources after synthesis - the final reso
     Info (21060): Implemented 49 bidirectional pins
     Info (21061): Implemented 978 logic cells
     Info (21064): Implemented 384 RAM segments
-Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 703 warnings
-    Info: Peak virtual memory: 588 megabytes
-    Info: Processing ended: Sun Apr 08 20:09:04 2018
-    Info: Elapsed time: 00:00:08
+Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 596 warnings
+    Info: Peak virtual memory: 598 megabytes
+    Info: Processing ended: Tue Apr 10 01:13:13 2018
+    Info: Elapsed time: 00:00:07
     Info: Total CPU time (on all processors): 00:00:07
 
 

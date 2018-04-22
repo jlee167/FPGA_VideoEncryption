@@ -1,5 +1,5 @@
 TimeQuest Timing Analyzer report for test
-Sun Apr 08 20:10:32 2018
+Tue Apr 10 01:14:43 2018
 Quartus II 64-Bit Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
 
 
@@ -168,8 +168,8 @@ Parallel compilation was disabled, but you have multiple processors available. E
 +-----------------------------------------------------------+--------+--------------------------+
 ; SDC File Path                                             ; Status ; Read at                  ;
 +-----------------------------------------------------------+--------+--------------------------+
-; cam_soc/synthesis/submodules/altera_reset_controller.sdc  ; OK     ; Sun Apr 08 20:10:27 2018 ;
-; cam_soc/synthesis/submodules/cam_soc_nios2_qsys_0_cpu.sdc ; OK     ; Sun Apr 08 20:10:27 2018 ;
+; cam_soc/synthesis/submodules/altera_reset_controller.sdc  ; OK     ; Tue Apr 10 01:14:39 2018 ;
+; cam_soc/synthesis/submodules/cam_soc_nios2_qsys_0_cpu.sdc ; OK     ; Tue Apr 10 01:14:39 2018 ;
 +-----------------------------------------------------------+--------+--------------------------+
 
 
@@ -6236,7 +6236,7 @@ No non-DPA dedicated SERDES Receiver circuitry present in device or used in desi
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
     Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
-    Info: Processing started: Sun Apr 08 20:10:26 2018
+    Info: Processing started: Tue Apr 10 01:14:37 2018
 Info: Command: quartus_sta test -c test
 Info: qsta_default_script.tcl version: #1
 Warning (20013): Ignored assignments for entity "altera_avalon_sc_fifo" -- entity does not exist in design
@@ -6791,7 +6791,7 @@ Info (332102): Design is not fully constrained for setup requirements
 Info (332102): Design is not fully constrained for hold requirements
 Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 447 warnings
     Info: Peak virtual memory: 654 megabytes
-    Info: Processing ended: Sun Apr 08 20:10:32 2018
+    Info: Processing ended: Tue Apr 10 01:14:43 2018
     Info: Elapsed time: 00:00:06
     Info: Total CPU time (on all processors): 00:00:06
 

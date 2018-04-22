@@ -157,7 +157,7 @@ output: Camera Clk, SCCB Clock, SCCB Data, VGA signals
 											 .sdram_wire_we_n(sdram_wire_we_n),     
 											 .sdram_clk_clk(sdram_wire_clk)
 											 );		
-							
+		*/					
 		
 		// Key receiving module that takes ASCII input from NIOS II processor
 		
@@ -167,7 +167,7 @@ output: Camera Clk, SCCB Clock, SCCB Data, VGA signals
 									.diagonal_shift(diagonal_shift),.SEED(SEED),
 									.Command(Command)
 								);		
-		*/
+		
 		//Clock Diving section for SCCB 
 		//SCCB takes no input clock bigger than 400 KHZ frequency
 		

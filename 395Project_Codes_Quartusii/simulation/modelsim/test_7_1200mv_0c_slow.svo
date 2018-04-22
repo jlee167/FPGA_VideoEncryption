@@ -17,7 +17,7 @@
 // PROGRAM "Quartus II 64-Bit"
 // VERSION "Version 14.0.0 Build 200 06/17/2014 SJ Web Edition"
 
-// DATE "04/08/2018 20:10:35"
+// DATE "04/10/2018 01:14:46"
 
 // 
 // Device: Altera EP4CE115F29C7 Package FBGA780
@@ -2110,24 +2110,6 @@ wire \hex3|WideOr3~0_combout ;
 wire \hex3|WideOr2~0_combout ;
 wire \hex3|WideOr1~0_combout ;
 wire \hex3|WideOr0~0_combout ;
-wire [19:0] \Inoutmodule|vertical_counter ;
-wire [9:0] \Inoutmodule|vc ;
-wire [7:0] \Inoutmodule|temp ;
-wire [19:0] \Inoutmodule|horizontal_counter ;
-wire [9:0] \Inoutmodule|hc ;
-wire [20:0] \Inoutmodule|counter ;
-wire [17:0] \Inoutmodule|VRAM_wraddress ;
-wire [15:0] \Inoutmodule|VRAM_in ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1175w ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1165w ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1155w ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1145w ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1135w ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1125w ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1115w ;
-wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1098w ;
-wire [2:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|out_address_reg_b ;
-wire [2:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|address_reg_b ;
 wire [3:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|decode2|w_anode1175w ;
 wire [3:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|decode2|w_anode1165w ;
 wire [3:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|decode2|w_anode1155w ;
@@ -2138,6 +2120,14 @@ wire [3:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|decode2
 wire [3:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|decode2|w_anode1098w ;
 wire [3:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|rden_decode_b|w_anode1186w ;
 wire [15:0] freq_counter;
+wire [19:0] \Inoutmodule|vertical_counter ;
+wire [9:0] \Inoutmodule|vc ;
+wire [7:0] \Inoutmodule|temp ;
+wire [19:0] \Inoutmodule|horizontal_counter ;
+wire [9:0] \Inoutmodule|hc ;
+wire [20:0] \Inoutmodule|counter ;
+wire [17:0] \Inoutmodule|VRAM_wraddress ;
+wire [15:0] \Inoutmodule|VRAM_in ;
 wire [3:0] \Inoutmodule|VideoMemory|altsyncram_component|auto_generated|decode2|w_anode1175w ;
 wire [3:0] \Inoutmodule|VideoMemory|altsyncram_component|auto_generated|decode2|w_anode1165w ;
 wire [3:0] \Inoutmodule|VideoMemory|altsyncram_component|auto_generated|decode2|w_anode1155w ;
@@ -2161,6 +2151,16 @@ wire [15:0] \sccb|garbage ;
 wire [7:0] \sccb|Write_data ;
 wire [7:0] \sccb|Sub_address ;
 wire [7:0] \sccb|SCCB_COUNTER ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1175w ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1165w ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1155w ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1145w ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1135w ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1125w ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1115w ;
+wire [3:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|decode2|w_anode1098w ;
+wire [2:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|out_address_reg_b ;
+wire [2:0] \Inoutmodule|VideoMemory3|altsyncram_component|auto_generated|address_reg_b ;
 
 wire [0:0] \Inoutmodule|VideoMemory2|altsyncram_component|auto_generated|ram_block1a29_PORTBDATAOUT_bus ;
 wire [0:0] \Inoutmodule|VideoMemory|altsyncram_component|auto_generated|ram_block1a93_PORTBDATAOUT_bus ;
